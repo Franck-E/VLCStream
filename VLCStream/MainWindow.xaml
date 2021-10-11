@@ -1,0 +1,34 @@
+﻿<Window x:Class="VLCStream.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:VLCStream"
+        mc:Ignorable="d"
+        Title="VLCStream Test" 
+        Height="620" Width="979" >
+    
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="40" />
+            <RowDefinition Height="*" />
+        </Grid.RowDefinitions>
+
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto" />
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="Auto" />
+            </Grid.ColumnDefinitions>
+            <Label Content="Enter URL:" VerticalAlignment="Center" FontWeight="Black"/>
+            <TextBox Text="{Binding URL, RelativeSource={RelativeSource AncestorType=Window}}" 
+                     Grid.Column="1" Padding="10" FontSize="14"/>
+            <Button x:Name="btn" Grid.Column="2" Content="Play" FontWeight="Bold" Width="100"
+                    Click="Button_Click" Background="Gray" HorizontalAlignment="Right" />
+        </Grid>
+
+
+        <Frame x:Name="vlcFrame" Grid.Row="1" NavigationUIVisibility="Hidden" Background="black"/>
+        
+    </Grid>
+</Window>
