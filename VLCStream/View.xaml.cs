@@ -2,6 +2,7 @@
 using LibVLCSharp.WPF;
 using System;
 using System.Linq;
+using System.Windows;
 using System.Windows.Controls;
 
 namespace VLCStream
@@ -11,36 +12,28 @@ namespace VLCStream
     /// </summary>
     public partial class View : Page
     {
-        public LibVLC libVLC { get; set; }
+        LibVLC libVLC { get; set; }
+        MediaPlayer vlcPlayer;
 
         public View()
         {     
             Core.Initialize();   
             InitializeComponent();
-            libVLC = new LibVLC(MediaOptions()); 
+            VideoView.Loaded += VideoView_Loaded;
         }
 
         public async void StartPlay(string path)
         {
-            await Dispatcher.InvokeAsync(new Action(async () =>
+            using (var media = new Media(libVLC, path, FromType.FromLocation))
             {
-                using (var media = new Media(libVLC, path, FromType.FromLocation))
-                {
-                    await media.Parse(MediaParseOptions.ParseNetwork);
-                    if (media.SubItems.FirstOrDefault() != null)
-                    {
-                        var vlcPlayer = new MediaPlayer(media.SubItems.FirstOrDefault());
-                        VideoView.MediaPlayer = vlcPlayer;
-                        VideoView.MediaPlayer.Play();
-                    }
-                }                  
-            }));
+                await media.Parse(MediaParseOptions.ParseNetwork);
+                VideoView.MediaPlayer.Play(media.SubItems.First());                         
+            }                  
         }
 
         public void StopPlay()
         {
-            if ((VideoView.MediaPlayer != null) && VideoView.MediaPlayer.IsPlaying)
-                VideoView.MediaPlayer.Stop();
+            if (VideoView.MediaPlayer.IsPlaying) { VideoView.MediaPlayer.Stop(); }
         }
 
         /// <summary>
@@ -52,9 +45,17 @@ namespace VLCStream
         {
             string[] mediaOptions;
 
-            mediaOptions = new[] { "--input-repeat=5", "--network-caching=10000", "--avcodec-hw=none" };
+            mediaOptions = new[] { "--input-repeat=5", "--network-caching=8000", "--directx-use-sysmem", "--avcodec-hw=none" };
             return mediaOptions;
         }
+
+        private void VideoView_Loaded(object sender, RoutedEventArgs e)
+        {
+            libVLC = new LibVLC(MediaOptions());
+            vlcPlayer = new MediaPlayer(libVLC);
+            VideoView.MediaPlayer = vlcPlayer;
+        }
+
 
         private void Page_Unloaded(object sender, System.Windows.RoutedEventArgs e)
         {
